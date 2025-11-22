@@ -1,0 +1,8 @@
+{
+    "cacheName": "skyscope-cache",
+    "precache": [
+        "/",
+        "/index.html"
+    ],
+    "fetchStrategy": "cache-first"
+}

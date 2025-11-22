@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": "."
+  },
+  "vueCompilerOptions": {
+    "globalTypesPath": "./frontend/node_modules/.vue/global.d.ts"
+  }
+}
+
