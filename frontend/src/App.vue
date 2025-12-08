@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="soft-font">
     <h1 style="text-align: center;">Weather PWA</h1>
     <div style="margin: 16px 0; text-align: center;">
-      <input v-model="city" placeholder="Enter city" />
+      <input v-model="city" placeholder="Enter city" @keyup.enter="fetchWeather" style="padding: 12px 16px; font-size: 1.1em; width: 200px; border: 1px solid #ccc; border-radius: 4px;" />
       <button @click="fetchWeather" style="padding: 12px 24px; font-size: 1.2em; margin: 0 8px;">Search</button>
       <button @click="fetchGeoWeather" style="padding: 12px 24px; font-size: 1.2em; margin: 0 8px;">Use My Location</button>
     </div>
@@ -10,6 +10,7 @@
       <div style="max-width: 400px; width: 100%; text-align: center;">
         <h2>{{ weather.name }}</h2>
         <div>
+          <p style="font-size: 3em; margin: 10px 0;">{{ getWeatherEmoji(weather.weather[0].main) }}</p>
           <p>{{ Math.round(weather.main.temp) }}°C</p>
           <p>{{ weather.weather[0].description }}</p>
           <div>
@@ -21,11 +22,34 @@
         </div>
       </div>
       <div style="max-width: 400px; width: 100%; text-align: center;">
-        <h3>Recommended Clothing</h3>
-        <div v-if="clothingRecommendations.length > 0">
-          <div v-for="(item, index) in clothingRecommendations" :key="index">
-            <span style="font-size: 2em; vertical-align: middle;">{{ item.emoji }}</span>
-            <span>{{ item.name }} - {{ item.reason }}</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+          <h3 style="margin: 0;">Recommended Clothing</h3>
+          <button v-if="clothingRecommendations.length > 0" @click="toggleAllInfo"
+            style="width: 40px; height: 40px; border-radius: 8px; background: #e0e0e0; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-left: 4px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="12" fill="#2196f3"/>
+              <text x="12" y="16" text-anchor="middle" fill="#fff" font-size="14" font-family="Arial" font-weight="bold">i</text>
+            </svg>
+          </button>
+        </div>
+        <div v-if="clothingRecommendations.length > 0" style="display: flex; flex-direction: row; align-items: flex-start; position: relative; margin-left: 40px;">
+          <div style="flex: 1;">
+            <div v-for="(item, index) in clothingRecommendations" :key="index" style="margin-bottom: 8px; display: flex; flex-direction: row; align-items: flex-start; position: relative; min-height: 3.5em;">
+              <span style="flex:1; text-align:left; padding-top: 4px;">{{ item.name }}</span>
+              <span style="font-size:2em; margin: 0 12px; flex-shrink:0; padding-top: 2px;">{{ item.emoji }}</span>
+              <span :style="{
+                flex: 2,
+                fontSize: '0.95em',
+                color: '#555',
+                minHeight: '3.2em',
+                display: 'flex',
+                flexDirection: 'column',
+                opacity: showAllInfo ? 1 : 0,
+                transition: 'opacity 0.2s',
+                textAlign: 'left',
+                marginLeft: '8px',
+              }">{{ item.reason }}</span>
+            </div>
           </div>
         </div>
         <div v-else>
@@ -44,6 +68,24 @@ const weather = ref(null)
 const showInstallButton = ref(false)
 const isInstalled = ref(false)
 let deferredPrompt = null
+
+const showAllInfo = ref(false)
+function toggleAllInfo() {
+  showAllInfo.value = !showAllInfo.value
+}
+
+function getWeatherEmoji(condition) {
+  const conditionLower = condition.toLowerCase()
+  if (conditionLower.includes('clear') || conditionLower.includes('sunny')) return '☀️'
+  if (conditionLower.includes('cloud')) return '☁️'
+  if (conditionLower.includes('rain') || conditionLower.includes('drizzle')) return '🌧️'
+  if (conditionLower.includes('thunder') || conditionLower.includes('storm')) return '⛈️'
+  if (conditionLower.includes('snow')) return '❄️'
+  if (conditionLower.includes('mist') || conditionLower.includes('fog')) return '🌫️'
+  if (conditionLower.includes('wind')) return '💨'
+  return '🌤️'
+}
+
 
 // Check if app is already installed
 const checkIfInstalled = () => {
@@ -315,6 +357,37 @@ const clothingRecommendations = computed(() => {
     })
   }
   
+  // 5.5. TROUSERS/BOTTOMS
+  if (temp <= 0) {
+    recommendations.push({
+      emoji: '🩳',
+      name: 'Thermal Leggings or Thick Pants',
+      reason: 'Essential insulation for freezing temperatures',
+      category: 'trousers'
+    })
+  } else if (temp <= 10) {
+    recommendations.push({
+      emoji: '👖',
+      name: 'Long Pants or Jeans',
+      reason: 'Warm protection for cold weather',
+      category: 'trousers'
+    })
+  } else if (temp <= 18) {
+    recommendations.push({
+      emoji: '👖',
+      name: 'Long Pants',
+      reason: 'Comfortable for mild weather',
+      category: 'trousers'
+    })
+  } else {
+    recommendations.push({
+      emoji: '🩳',
+      name: 'Shorts or Light Pants',
+      reason: 'Breathable for warm weather',
+      category: 'trousers'
+    })
+  }
+  
   // 6. FOOTWEAR/SHOEWARE
   if (isSnowing || temp <= 0) {
     recommendations.push({
@@ -403,4 +476,11 @@ const clothingRecommendations = computed(() => {
 </script>
 
 <style>
+.soft-font {
+  font-family: 'Segoe UI', 'Quicksand', 'Nunito', 'Arial Rounded MT Bold', 'Arial', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 </style>
