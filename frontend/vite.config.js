@@ -81,7 +81,7 @@ export default defineConfig({
     strictPort: false, // Allow fallback to next available port if 5173 is taken
     proxy: {
       '/weather': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:8000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/weather/, '/weather.php'),
       },
