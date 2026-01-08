@@ -70,7 +70,7 @@ export default defineConfig({
         screenshots: [],
       },
       devOptions: {
-        enabled: true,
+        enabled: false,
         type: 'module',
       },
     }),

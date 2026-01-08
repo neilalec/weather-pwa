@@ -1,22 +1,24 @@
 <template>
   <div class="soft-font">
-    <h1 style="text-align: center;">Weather Info</h1>
-    <div style="margin: 16px 0; text-align: center;">
-      <input v-model="city" placeholder="Enter city" @keyup.enter="fetchWeather" style="padding: 12px 16px; font-size: 1.1em; width: 200px; border: 1px solid #ccc; border-radius: 4px;" />
-      <button @click="fetchWeather" style="padding: 12px 24px; font-size: 1.2em; margin: 0 8px;">Search</button>
-      <button @click="fetchGeoWeather" style="padding: 12px 24px; font-size: 1.2em; margin: 0 8px;">Use My Location</button>
+    <h1 style="text-align: center;">YourWeather</h1>
+    <div class="search-panel">
+      <input v-model="city" placeholder="Enter city" @keyup.enter="fetchWeather" class="search-input" />
+      <div class="search-actions">
+        <button @click="fetchWeather" class="search-btn">Search</button>
+        <button @click="fetchGeoWeather" class="search-btn secondary">Use My Location</button>
+      </div>
     </div>
     <div v-if="weather" style="display: flex; flex-direction: row; justify-content: center; gap: 32px; width: 100%; margin-top: 32px;">
       <div style="max-width: 400px; width: 100%; text-align: center;">
         <h2>{{ weather.name }}</h2>
         <div>
           <p style="font-size: 3em; margin: 10px 0;">{{ getWeatherEmoji(weather.weather[0].main) }}</p>
-          <p>{{ Math.round(weather.main.temp) }} C</p>
+          <p>{{ Math.round(weather.main.temp) }}&deg;C</p>
           <p>{{ weather.weather[0].description }}</p>
           <div>
-            <p>Feels Like: {{ Math.round(weather.main.feels_like) }} C</p>
+            <p>Feels Like: {{ Math.round(weather.main.feels_like) }}&deg;C</p>
             <p>Humidity: {{ weather.main.humidity }}%</p>
-            <p>Wind: {{ weather.wind?.speed || 0 }} m/s</p>
+            <p>Wind: {{ weather.wind?.speed || 0 }} m/s {{ windDirection(weather.wind?.deg) }}</p>
             <p>Pressure: {{ weather.main.pressure }} hPa</p>
           </div>
         </div>
@@ -25,7 +27,7 @@
     <div v-if="hourlySteps.length" class="hourly-strip">
       <div v-for="(hour, index) in hourlySteps" :key="index" class="hour-card">
         <div class="hour-time">{{ hour.time }}</div>
-        <div class="hour-temp">{{ hour.temp }} C</div>
+        <div class="hour-temp">{{ hour.temp }}&deg;C</div>
         <div class="hour-desc">{{ hour.description }}</div>
         <div class="hour-precip">Precip: {{ hour.precipMm }} mm</div>
       </div>
@@ -53,6 +55,13 @@ function getWeatherEmoji(condition) {
   if (conditionLower.includes('mist') || conditionLower.includes('fog')) return 'Fog'
   if (conditionLower.includes('wind')) return 'Wind'
   return 'Unknown'
+}
+
+function windDirection(deg) {
+  if (deg === null || deg === undefined) return ''
+  const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
+  const index = Math.round(deg / 45) % 8
+  return directions[index]
 }
 
 
@@ -221,6 +230,67 @@ const hourlySteps = computed(() =>
   letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.search-panel {
+  margin: 16px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 320px;
+}
+
+.search-input {
+  padding: 12px 16px;
+  font-size: 1.05em;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
+  box-sizing: border-box;
+  min-height: 48px;
+}
+
+.search-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.search-btn {
+  padding: 12px 16px;
+  font-size: 1.05em;
+  border-radius: 8px;
+  border: 1px solid #1d4ed8;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  width: 100%;
+}
+
+.search-btn.secondary {
+  background: #eef2ff;
+  color: #1d4ed8;
+}
+
+.search-btn:hover {
+  filter: brightness(0.98);
+}
+
+.search-btn:active {
+  transform: translateY(1px);
+}
+
+@media (min-width: 600px) {
+  .search-panel {
+    max-width: 520px;
+  }
+
+  .search-actions {
+    flex-direction: row;
+  }
 }
 
 .hourly-strip {
